@@ -32,3 +32,60 @@ $ docker-compose run web ./manage.py createsuperuser
 `ALLOWED_HOSTS` -- настройка Django со списком разрешённых адресов. Если запрос прилетит на другой адрес, то сайт ответит ошибкой 400. Можно перечислить несколько адресов через запятую, например `127.0.0.1,192.168.0.1,site.test`. [Документация Django](https://docs.djangoproject.com/en/3.2/ref/settings/#allowed-hosts).
 
 `DATABASE_URL` -- адрес для подключения к базе данных PostgreSQL. Другие СУБД сайт не поддерживает. [Формат записи](https://github.com/jacobian/dj-database-url#url-schema).
+
+## Запуск сайта в Minikube
+
+### Окружение 
+
+На локальном компьютере необходимо установить:
+
+- [VirtualBox](https://virtualbox.org)
+- [Minikube](https://minikube.sigs.k8s.io)
+- [Kubernetes kubectl](https://kubernetes.io/ru/docs/tasks/tools/install-kubectl/)
+
+Видео [Поднятия простого Локального k8s Cluster на Windows](https://www.youtube.com/watch?v=WAIrMmCQ3hE&list=PLg5SS_4L6LYvN1RqaVesof8KAf-02fJSi&index=3&ab_channel=ADV-IT)
+
+В каталоге `kubernetes` создайте конфигурационный файл `django-config.yaml`, содержащий в себе настройки переменных окружения (пример конфига `django-congig-example.yaml`)
+
+Запустите Minikube:
+```shell
+minikube start
+```
+
+
+
+
+Включите встроенный Ingress-контроллер:
+```shell
+minikube addons enable ingress
+```
+
+Примените Ingress-правило:
+```shell
+kubectl apply -f kubernetes/starburger-ingress.yaml
+```
+
+Добавьте запись в файл hosts:
+
+- Найдите IP-адрес Minikube:
+```shell
+minikube ip
+```
+
+Затем добавьте этот IP в файл `hosts` (<IP minikube> starburger.test).
+- На Linux и macOS, файл hosts обычно находится в /etc/hosts.
+- На Windows, файл hosts обычно находится в C:\Windows\System32\Drivers\etc\hosts.
+
+Примените конфигурационный файл:
+```shell
+kubectl apply -f kubernetes/django-config.yaml
+```
+
+Запустите deployment:
+```shell
+kubectl apply -f kubernetes/django-config.yaml
+```
+
+
+
+Загрузите 

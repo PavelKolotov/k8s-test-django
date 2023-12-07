@@ -32,7 +32,6 @@ metadata:
   labels:
     app.kubernetes.io/name: django-deployment
 spec:
-  type: NodePort
   selector:
     app: django
   ports:
