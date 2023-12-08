@@ -6,8 +6,10 @@ metadata:
     app: django
 spec:
   schedule: "0 0 1 * *"
+  startingDeadlineSeconds: 60
   jobTemplate:
     spec:
+      ttlSecondsAfterFinished: 600
       template:
         spec:
           containers:
@@ -15,4 +17,7 @@ spec:
               image: docker.io/library/django_app:latest
               command: ["python", "./manage.py", "clearsessions"]
               imagePullPolicy: Never
+              envFrom:
+                - configMapRef:
+                    name: django-config
           restartPolicy: OnFailure
