@@ -47,13 +47,22 @@ $ docker-compose run web ./manage.py createsuperuser
 
 В каталоге `kubernetes` создайте конфигурационный файл `django-config.yaml`, содержащий в себе настройки переменных окружения (пример конфига `django-congig-example.yaml`)
 
+### Запуск в Minikube
+
 Запустите Minikube:
 ```shell
 minikube start
 ```
 
+Настройте терминал для использования Docker Daemon Minikube:
+```shell
+eval $(minikube docker-env)
+```
 
-
+Соберите образ Django:
+```shell
+docker-compose build web
+```
 
 Включите встроенный Ingress-контроллер:
 ```shell
@@ -83,9 +92,39 @@ kubectl apply -f kubernetes/django-config.yaml
 
 Запустите deployment:
 ```shell
-kubectl apply -f kubernetes/django-config.yaml
+kubectl apply -f kubernetes/django-deployment.yaml
 ```
 
+Для очистки сессий, запустите django-clearsessions:
+```shell
+kubectl apply -f kubernetes/django-clearsessions.yaml
+```
 
+### Подключение базы данных
 
-Загрузите 
+Установите инструмент для управления приложениями Kubernetes [Helm](https://helm.sh)
+
+Добавьте Helm Chart Repository:
+```shell
+helm repo add bitnami https://charts.bitnami.com/bitnami
+helm repo update
+```
+
+Создайте файл `postgres-config.yaml` с конфигурацией базы данных (пример конфигурационного файла `postgres-config-example.yaml`)
+
+Установите PostgreSQL, используя созданный конфигурационный файл:
+```shell
+helm install postgres bitnami/postgresql -f postgres-config.yaml
+```
+
+В файле `django-config` измените переменную `DATABASE_URL`, поменяв `HOST` базы данных (пример значения: postgres-postgresql.default.svc.cluster.local)
+
+Примените миграции к базе данных:
+```shell
+kubectl apply -f kubernetes/django-job-migrate.yaml
+```
+
+Сайт будет доступен по ссылке [http://starburger.test](http://starburger.test)
+
+## Цели проекта
+Код написан в учебных целях — это урок в курсе по Python и веб-разработке на сайте [Devman](https://dvmn.org).

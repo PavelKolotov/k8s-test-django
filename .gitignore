@@ -3,4 +3,5 @@ __pycache__/
 *.py[cod]
 *$py.class
 kubernetes/django-config.yaml
+kubernetes/postgres-config.yaml
 .idea
