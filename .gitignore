@@ -5,3 +5,5 @@ __pycache__/
 kubernetes/django-config.yaml
 kubernetes/postgres-config.yaml
 .idea
+test.yaml
+kubernetes_dev/ingress.yaml
