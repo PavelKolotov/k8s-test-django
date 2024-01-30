@@ -117,11 +117,11 @@ helm repo update
 helm install postgres bitnami/postgresql -f postgres-config.yaml
 ```
 
-В файле `django-config` измените переменную `DATABASE_URL`, поменяв `HOST` базы данных (пример значения: postgres-postgresql.default.svc.cluster.local)
+В файле `django-config` измените переменную `DATABASE_URL`, поменяв `HOST` базы данных
 
 Примените миграции к базе данных:
 ```shell
-kubectl apply -f kubernetes/django-job-migrate.yaml
+kubectl apply -f kubernetes/django-job.yaml
 ```
 
 Сайт будет доступен по ссылке [http://starburger.test](http://starburger.test)

@@ -1,0 +1,44 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: django-migrate-and-copy-bucket
+  namespace: edu-stoic-dubinsky
+  labels:
+    app.kubernetes.io/name: django-migrate
+spec:
+  template:
+    spec:
+      containers:
+        - name: django-app
+          image: pavelsk84/django_app_k8s:latest
+          imagePullPolicy: Always
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              python ./manage.py migrate --no-input && \
+              s3cmd_config="s3cmd_config" && \
+              if [ ! -f "$s3cmd_config" ]; then \
+                echo "Creating s3cmd_config file..." && \
+                echo "[default]" > "$s3cmd_config" && \
+                echo "access_key = $access_key" >> "$s3cmd_config" && \
+                echo "secret_key = $secret_key" >> "$s3cmd_config" && \
+                echo "host_base = storage.yandexcloud.net" >> "$s3cmd_config" && \
+                echo "host_bucket = %(bucket)s.storage.yandexcloud.net" >> "$s3cmd_config" && \
+                echo "use_https = True" >> "$s3cmd_config" && \
+                s3cmd --config "$s3cmd_config" sync -r /static s3://edu-stoic-dubinsky/; \
+              else \
+                echo "s3cmd_config file already exists, skipping creation..." && \
+                s3cmd --config "$s3cmd_config" sync -r /static s3://edu-stoic-dubinsky/; \
+              fi
+          envFrom:
+            - configMapRef:
+                name: django-config
+            - secretRef:
+                name: bucket
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: postgres
+                  key: url
+      restartPolicy: OnFailure

@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: django-deployment
+  namespace: edu-stoic-dubinsky
+  labels:
+    app.kubernetes.io/name: django-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: django-app
+  template:
+    metadata:
+      labels:
+        app: django-app
+    spec:
+      containers:
+        - name: django-app
+          image: pavelsk84/django_app_k8s:latest
+          envFrom:
+            - configMapRef:
+                name: django-config
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: postgres
+                  key: url
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+              protocol: TCP
+          volumeMounts:
+            - name: ssl-certs
+              mountPath: "/.postgresql"
+              readOnly: true
+      volumes:
+        - name: ssl-certs
+          secret:
+            secretName: postgres-ssl-secret
+            items:
+              - key: ssl-certs
+                path: root.crt
+
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: django-app
+  namespace: edu-stoic-dubinsky
+  labels:
+    app.kubernetes.io/name: django-deployment
+spec:
+  selector:
+    app: django-app
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+      nodePort: 30261
+  type: NodePort

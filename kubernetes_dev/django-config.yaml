@@ -2,8 +2,9 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: django-config
+  namespace: edu-stoic-dubinsky
   labels:
-    app: django
+    app: django-app
 data:
   SECRET_KEY: "c0e)1&48x%msmbg!uqlh-055!i50l3bj9_7$wxc&adp=7odk4s"
   DEBUG: "False"
