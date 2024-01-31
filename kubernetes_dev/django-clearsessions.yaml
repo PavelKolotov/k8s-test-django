@@ -1,0 +1,30 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: django-clearsessions
+  namespace: edu-stoic-dubinsky
+  labels:
+    app.kubernetes.io/name: django-clearsessions
+spec:
+  schedule: "0 0 1 * *"
+  startingDeadlineSeconds: 60
+  jobTemplate:
+    spec:
+      ttlSecondsAfterFinished: 600
+      template:
+        spec:
+          containers:
+            - name: django-app
+              image: pavelsk84/django_app_k8s:latest
+              command: ["python", "./manage.py", "clearsessions"]
+              imagePullPolicy: Never
+              envFrom:
+                - configMapRef:
+                    name: django-config
+              env:
+                - name: DATABASE_URL
+                  valueFrom:
+                    secretKeyRef:
+                      name: postgres
+                      key: url
+          restartPolicy: OnFailure
