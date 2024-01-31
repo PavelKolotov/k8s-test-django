@@ -20,6 +20,8 @@ spec:
           envFrom:
             - configMapRef:
                 name: django-config
+            - secretRef:
+                name: django-secret
           imagePullPolicy: Never
           ports:
             - containerPort: 80

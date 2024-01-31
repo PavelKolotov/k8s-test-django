@@ -15,4 +15,6 @@ spec:
           envFrom:
             - configMapRef:
                 name: django-config
+            - secretRef:
+                name: django-secret
       restartPolicy: OnFailure
