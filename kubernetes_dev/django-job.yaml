@@ -35,6 +35,8 @@ spec:
                 name: django-config
             - secretRef:
                 name: bucket
+            - secretRef:
+                name: django-secret
           env:
             - name: DATABASE_URL
               valueFrom:

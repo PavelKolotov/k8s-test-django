@@ -21,6 +21,8 @@ spec:
               envFrom:
                 - configMapRef:
                     name: django-config
+                - secretRef:
+                    name: django-secret
               env:
                 - name: DATABASE_URL
                   valueFrom:
